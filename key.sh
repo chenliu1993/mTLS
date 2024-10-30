@@ -18,22 +18,29 @@ DAYS=3650
 openssl req -newkey rsa:2048 \
   -new -nodes -x509 \
   -days ${DAYS} \
-  -out ca.crt \
-  -keyout ca.key \
-  -subj "/C=SO/ST=Earth/L=Mountain/O=MegaEase/OU=MegaCloud/CN=localhost"
+  -out server_ca.crt \
+  -keyout server_ca.key \
+  -subj "/C=SO/ST=Earth/L=Mountain/O=MegaEase/OU=MegaCloud/CN=localhostserver"
+
+openssl req -newkey rsa:2048 \
+  -new -nodes -x509 \
+  -days ${DAYS} \
+  -out client_ca.crt \
+  -keyout client_ca.key \
+  -subj "/C=SO/ST=Earth/L=Mountain/O=MegaEase/OU=MegaCloud/CN=localhostclient"
 
 #create a key for server
 openssl genrsa -out server.key 2048
 
 #generate the Certificate Signing Request
 openssl req -new -key server.key -days ${DAYS} -out server.csr \
-  -subj "/C=SO/ST=Earth/L=Mountain/O=MegaEase/OU=MegaCloud/CN=localhost"
+  -subj "/C=SO/ST=Earth/L=Mountain/O=MegaEase/OU=MegaCloud/CN=localhostserver"
 
 #sign it with Root CA
 # https://stackoverflow.com/questions/64814173/how-do-i-use-sans-with-openssl-instead-of-common-name
 openssl x509  -req -in server.csr \
   -extfile <(printf "subjectAltName=DNS:localhost") \
-  -CA ca.crt -CAkey ca.key  \
+  -CA server_ca.crt -CAkey server_ca.key  \
   -days ${DAYS} -sha256 -CAcreateserial \
   -out server.crt
 
@@ -45,10 +52,10 @@ function generate_client() {
   OU=$3
   openssl genrsa -out ${CLIENT}.key 2048
   openssl req -new -key ${CLIENT}.key -days ${DAYS} -out ${CLIENT}.csr \
-    -subj "/C=SO/ST=Earth/L=Mountain/O=$O/OU=$OU/CN=localhost"
+    -subj "/C=SO/ST=Earth/L=Mountain/O=$O/OU=$OU/CN=localhostclient"
   openssl x509  -req -in ${CLIENT}.csr \
     -extfile <(printf "subjectAltName=DNS:localhost") \
-    -CA ca.crt -CAkey ca.key -out ${CLIENT}.crt -days ${DAYS} -sha256 -CAcreateserial
+    -CA client_ca.crt -CAkey client_ca.key -out ${CLIENT}.crt -days ${DAYS} -sha256 -CAcreateserial
   cat ${CLIENT}.crt ${CLIENT}.key > ${CLIENT}.pem
 }
 

@@ -52,7 +52,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := 8080
+	port := 8081
 	sslPort := 8443
 
 	// Set up a /hello resource handler
@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	// load CA certificate file and add it to list of client CAs
-	caCertFile, err := ioutil.ReadFile("./certs/ca.crt")
+	caCertFile, err := ioutil.ReadFile("./certs/client_ca.crt")
 	if err != nil {
 		log.Fatalf("error reading CA certificate: %v", err)
 	}

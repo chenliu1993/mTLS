@@ -16,7 +16,7 @@ func main() {
 	name := flag.String("c", "a", "client name")
 	flag.Parse()
 
-	cert, err := ioutil.ReadFile("./certs/ca.crt")
+	cert, err := ioutil.ReadFile("./certs/server_ca.crt")
 	if err != nil {
 		log.Fatalf("could not open certificate file: %v", err)
 	}
